@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hardware Compatibility Challenge</title>
+<style>
+  /* Everything is intentionally scoped to #hcc-lab so it will not restyle an LMS page. */
+  #hcc-lab {
+    --orange:#ff6b00;
+    --blue:#1458d4;
+    --blue2:#0b2f6b;
+    --blueSoft:#edf5ff;
+    --ink:#142033;
+    --muted:#667085;
+    --line:#d9e2ef;
+    --panel:#ffffff;
+    --soft:#f5f7fa;
+    --good:#0f8a55;
+    --bad:#c53d3d;
+    --shadow:0 12px 30px rgba(25, 45, 78, .10);
+    width:100%;
+    max-width:1500px;
+    margin:0 auto;
+    box-sizing:border-box;
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color:var(--ink);
+    background:#fff;
+    border:1px solid #dbe4ef;
+    border-radius:18px;
+    overflow:hidden;
+    min-height:760px;
+  }
+  #hcc-lab * { box-sizing:border-box; }
+  #hcc-lab button, #hcc-lab select { font:inherit; }
+  #hcc-lab button { cursor:pointer; }
+
+  #hcc-lab .lab-header {
+    background:linear-gradient(110deg,#ffffff 0%,#f6faff 60%,#eaf3ff 100%);
+    padding:24px 28px 18px;
+    border-bottom:1px solid var(--line);
+  }
+  #hcc-lab .eyebrow {
+    color:var(--blue);
+    font-weight:800;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+  }
+  #hcc-lab h1 {
+    margin:5px 0 2px;
+    color:var(--orange);
+    font-size:clamp(27px,3vw,42px);
+    line-height:1.05;
+    font-weight:900;
+  }
+  #hcc-lab .subtitle {
+    margin:5px 0 0;
+    color:var(--blue2);
+    font-weight:750;
+    font-size:16px;
+  }
+
+  #hcc-lab .topbar {
+    padding:14px 22px;
+    background:#fff;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    gap:14px;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+  }
+  #hcc-lab .levels { display:flex; gap:8px; flex-wrap:wrap; }
+  #hcc-lab .level-pill {
+    border:1px solid var(--line);
+    background:#f8fafc;
+    color:#475467;
+    border-radius:999px;
+    padding:9px 13px;
+    font-size:13px;
+    font-weight:800;
+  }
+  #hcc-lab .level-pill.active { background:var(--blue); color:#fff; border-color:var(--blue); }
+  #hcc-lab .level-pill.done { background:#e9f8f1; color:#087443; border-color:#bde7d3; }
+  #hcc-lab .level-pill.locked { opacity:.55; cursor:not-allowed; }
+  #hcc-lab .score-box { display:flex; gap:14px; color:#475467; font-size:13px; font-weight:700; }
+  #hcc-lab .score-box b { color:var(--ink); }
+
+  #hcc-lab .lab-shell {
+    padding:20px;
+    background:#f7f9fc;
+    max-height:calc(100vh - 180px);
+    min-height:620px;
+    overflow:auto;
+  }
+  #hcc-lab .grid {
+    display:grid;
+    grid-template-columns:minmax(235px,.80fr) minmax(470px,1.75fr) minmax(260px,.9fr);
+    gap:16px;
+    align-items:start;
+  }
+  #hcc-lab .panel {
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:15px;
+    box-shadow:0 3px 15px rgba(30,55,90,.04);
+    overflow:hidden;
+  }
+  #hcc-lab .panel-head {
+    padding:14px 16px;
+    border-bottom:1px solid var(--line);
+    font-weight:900;
+    color:var(--blue2);
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    align-items:center;
+  }
+  #hcc-lab .panel-body { padding:16px; }
+
+  #hcc-lab .customer-tag {
+    display:inline-flex;
+    padding:6px 9px;
+    border-radius:999px;
+    background:#fff4eb;
+    color:#c45100;
+    border:1px solid #ffd8bd;
+    font-weight:900;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+  }
+  #hcc-lab .customer-title { font-size:22px; line-height:1.1; margin:10px 0 8px; font-weight:900; }
+  #hcc-lab .customer-quote {
+    padding:12px;
+    background:var(--blueSoft);
+    border-left:4px solid var(--blue);
+    border-radius:10px;
+    color:#17345f;
+    font-weight:700;
+    line-height:1.45;
+    margin:12px 0;
+  }
+  #hcc-lab .req-title { margin-top:16px; font-weight:900; font-size:13px; color:#344054; }
+  #hcc-lab .requirements { margin:8px 0 0; padding-left:20px; color:#475467; line-height:1.55; font-size:13px; }
+  #hcc-lab .budget-card {
+    margin-top:15px;
+    padding:12px;
+    background:#fbfcfe;
+    border:1px solid var(--line);
+    border-radius:12px;
+  }
+  #hcc-lab .budget-row { display:flex; justify-content:space-between; gap:10px; font-size:13px; margin:3px 0; }
+  #hcc-lab .budget-row strong { color:var(--blue2); }
+  #hcc-lab .budget-meter { height:8px; background:#e8edf5; border-radius:10px; overflow:hidden; margin-top:9px; }
+  #hcc-lab .budget-fill { height:100%; width:0%; background:var(--blue); transition:.25s ease; }
+  #hcc-lab .budget-fill.over { background:var(--bad); }
+
+  #hcc-lab .instruction {
+    background:#eef6ff;
+    color:#183a6a;
+    border:1px solid #cfe3ff;
+    padding:10px 12px;
+    border-radius:10px;
+    font-size:13px;
+    line-height:1.4;
+    margin-bottom:12px;
+  }
+  #hcc-lab .component-grid {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+  }
+  #hcc-lab .component-slot {
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:11px;
+    background:#fff;
+    min-height:112px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    gap:8px;
+  }
+  #hcc-lab .component-slot.selected { border-color:#8eb9ff; box-shadow:0 0 0 2px #e7f0ff inset; }
+  #hcc-lab .slot-top { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+  #hcc-lab .slot-label { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:#667085; font-weight:900; }
+  #hcc-lab .slot-icon { font-size:20px; line-height:1; }
+  #hcc-lab .selected-name { font-size:13px; font-weight:850; line-height:1.3; color:#1d2939; }
+  #hcc-lab .selected-spec { color:#667085; font-size:11px; line-height:1.35; }
+  #hcc-lab .choose-btn {
+    width:100%;
+    border:1px solid #b7cff4;
+    color:var(--blue);
+    background:#f6faff;
+    padding:8px 10px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:900;
+  }
+  #hcc-lab .choose-btn:hover { background:#eaf3ff; }
+
+  #hcc-lab .actions { display:flex; flex-wrap:wrap; gap:9px; margin-top:14px; }
+  #hcc-lab .btn {
+    border-radius:10px;
+    padding:10px 14px;
+    border:1px solid transparent;
+    font-weight:900;
+    font-size:13px;
+  }
+  #hcc-lab .btn-primary { background:var(--blue); color:#fff; }
+  #hcc-lab .btn-primary:hover { background:#0f49b1; }
+  #hcc-lab .btn-orange { background:var(--orange); color:#fff; }
+  #hcc-lab .btn-ghost { background:#fff; color:#344054; border-color:var(--line); }
+  #hcc-lab .btn:disabled { opacity:.45; cursor:not-allowed; }
+
+  #hcc-lab .coach-list { display:grid; gap:9px; }
+  #hcc-lab .coach-rule {
+    padding:10px;
+    border-radius:10px;
+    background:#f8fafc;
+    border:1px solid #e4e9f1;
+    font-size:12px;
+    color:#475467;
+    line-height:1.4;
+  }
+  #hcc-lab .coach-rule b { color:#25354f; }
+  #hcc-lab .help-note {
+    margin-top:12px;
+    font-size:11px;
+    color:#667085;
+    background:#fffbeb;
+    border:1px solid #f4e6a6;
+    border-radius:9px;
+    padding:9px;
+  }
+
+  #hcc-lab .report { margin-top:14px; display:none; }
+  #hcc-lab .report.show { display:block; }
+  #hcc-lab .report-title { font-weight:900; margin-bottom:8px; }
+  #hcc-lab .check-row {
+    display:flex;
+    gap:9px;
+    align-items:flex-start;
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:9px 10px;
+    margin-top:7px;
+    background:#fff;
+    font-size:12px;
+    line-height:1.4;
+  }
+  #hcc-lab .check-row.pass { border-color:#bfe4d2; background:#f2fbf7; }
+  #hcc-lab .check-row.warn { border-color:#f0d79a; background:#fffbeb; }
+  #hcc-lab .check-row.fail { border-color:#efc3c3; background:#fff7f7; }
+  #hcc-lab .check-icon { width:20px; flex:0 0 20px; font-weight:900; text-align:center; }
+
+  #hcc-lab .review-summary {
+    display:none;
+    margin:0 0 10px;
+    padding:11px 12px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    font-size:13px;
+    line-height:1.45;
+    font-weight:800;
+  }
+  #hcc-lab .review-summary.show { display:block; }
+  #hcc-lab .review-summary.pass { background:#edf9f3; border-color:#bfe4d2; color:#087443; }
+  #hcc-lab .review-summary.warn { background:#fffbeb; border-color:#f0d79a; color:#825d00; }
+  #hcc-lab .review-summary.fail { background:#fff3f3; border-color:#efc3c3; color:#a12d2d; }
+
+
+  #hcc-lab .hcc-modal-backdrop {
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.62);
+    z-index:99999;
+    display:none;
+    align-items:flex-start;
+    justify-content:center;
+    padding:26px 18px;
+    overflow:auto;
+  }
+  #hcc-lab .hcc-modal-backdrop.show { display:flex; }
+  #hcc-lab .hcc-modal-box {
+    position:relative;
+    isolation:isolate;
+    width:min(820px,96vw);
+    max-height:min(720px,88vh);
+    overflow:auto;
+    background:#ffffff !important;
+    background-image:none !important;
+    opacity:1 !important;
+    border-radius:16px;
+    box-shadow:0 24px 70px rgba(0,0,0,.32);
+    border:1px solid #dbe4ef;
+  }
+  #hcc-lab .hcc-modal-box::before {
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    background:#ffffff;
+    z-index:-1;
+  }
+  #hcc-lab .hcc-modal-head {
+    position:sticky;
+    top:0;
+    background:#ffffff !important;
+    z-index:3;
+    padding:15px 17px;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    align-items:center;
+  }
+  #hcc-lab .hcc-modal-title { font-weight:900; color:var(--blue2); }
+  #hcc-lab .close-btn { border:0; background:#f2f4f7; width:34px; height:34px; border-radius:50%; font-weight:900; }
+  #hcc-lab .option-list { padding:14px; display:grid; gap:10px; background:#ffffff !important; }
+  #hcc-lab .option-card {
+    border:1px solid var(--line); border-radius:12px; padding:12px;
+    display:grid; grid-template-columns:1fr auto; gap:10px; align-items:start; background:#ffffff !important; opacity:1 !important;
+  }
+  #hcc-lab .option-card:hover { border-color:#92baff; background:#fbfdff; }
+  #hcc-lab .option-name { font-weight:900; color:#1d2939; font-size:14px; }
+  #hcc-lab .option-specs { margin-top:5px; color:#667085; font-size:12px; line-height:1.45; }
+  #hcc-lab .option-price { color:var(--blue2); font-size:13px; font-weight:900; white-space:nowrap; }
+  #hcc-lab .option-select { margin-top:8px; border:0; background:var(--blue); color:#fff; border-radius:8px; padding:8px 11px; font-weight:900; }
+  #hcc-lab .option-card.current { border-color:var(--orange); box-shadow:0 0 0 2px #fff0e6 inset; }
+
+  #hcc-lab .toast {
+    position:fixed; right:22px; bottom:22px; z-index:100000;
+    background:#182230; color:#fff; padding:11px 14px; border-radius:10px; box-shadow:var(--shadow);
+    font-size:12px; font-weight:800; display:none; max-width:340px;
+  }
+  #hcc-lab .toast.show { display:block; }
+
+  #hcc-lab .final-card {
+    display:none; padding:26px; text-align:center; background:#fff;
+    border:1px solid var(--line); border-radius:15px; box-shadow:var(--shadow);
+  }
+  #hcc-lab .final-card.show { display:block; }
+  #hcc-lab .final-card h2 { color:var(--orange); margin:4px 0 8px; font-size:30px; }
+  #hcc-lab .final-stats { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:15px 0; }
+  #hcc-lab .stat { padding:10px 14px; background:#f7f9fc; border:1px solid var(--line); border-radius:10px; font-weight:850; }
+  #hcc-lab .final-card p { color:#475467; line-height:1.5; max-width:720px; margin:8px auto; }
+
+
+  #hcc-lab .hcc-modal-backdrop,
+  #hcc-lab .hcc-modal-box,
+  #hcc-lab .hcc-modal-head,
+  #hcc-lab .option-list,
+  #hcc-lab .option-card {
+    filter:none !important;
+    backdrop-filter:none !important;
+    mix-blend-mode:normal !important;
+  }
+
+  @media (max-width:1150px) {
+    #hcc-lab .grid { grid-template-columns:minmax(230px,.8fr) minmax(450px,1.4fr); }
+    #hcc-lab .coach-panel { grid-column:1 / -1; }
+    #hcc-lab .coach-list { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  }
+  @media (max-width:760px) {
+    #hcc-lab { border-radius:0; }
+    #hcc-lab .lab-shell { max-height:none; padding:12px; }
+    #hcc-lab .grid { grid-template-columns:1fr; }
+    #hcc-lab .component-grid { grid-template-columns:1fr; }
+    #hcc-lab .coach-panel { grid-column:auto; }
+    #hcc-lab .coach-list { grid-template-columns:1fr; }
+    #hcc-lab .case-board { min-height:340px; }
+  }
+</style>
+</head>
+<body>
+<div id="hcc-lab">
+  <div class="lab-header">
+    <div class="eyebrow">CompTIA A+ Core 1 • Hardware Capstone</div>
+    <h1>Hardware Compatibility Challenge</h1>
+    <div class="subtitle">Build the Computer — translate customer needs into compatible, appropriate hardware while staying within budget.</div>
+  </div>
+
+  <div class="topbar">
+    <div id="levelPills" class="levels"></div>
+    <div class="score-box">
+      <span>Progress <b id="progressText">0%</b></span>
+      <span>Checks <b id="checkCount">0</b></span>
+      <span>Hints <b>Free</b></span>
+    </div>
+  </div>
+
+  <div class="lab-shell">
+    <div id="mainGrid" class="grid">
+      <section class="panel">
+        <div class="panel-head">Customer Ticket <span id="difficultyBadge" class="customer-tag"></span></div>
+        <div class="panel-body">
+          <div id="customerTitle" class="customer-title"></div>
+          <div id="customerQuote" class="customer-quote"></div>
+          <div class="req-title">Customer priorities</div>
+          <ul id="requirements" class="requirements"></ul>
+
+          <div class="budget-card">
+            <div class="budget-row"><span>Lab budget</span><strong id="budgetLimit"></strong></div>
+            <div class="budget-row"><span>Selected total</span><strong id="selectedTotal">$0</strong></div>
+            <div class="budget-meter"><div id="budgetFill" class="budget-fill"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">1. Select the Parts <span id="selectedCount">0 / 0 selected</span></div>
+        <div class="panel-body">
+          <div class="instruction">
+            Read the specs. Do not choose a part just because it is faster or more expensive. Your build must be <b>compatible</b> and must fit the customer's actual needs. <b>More than one build may be valid</b> when multiple choices meet every stated requirement.
+          </div>
+          <div id="componentGrid" class="component-grid"></div>
+          <div class="actions">
+            <button id="checkBuildBtn" class="btn btn-primary">Review Build</button>
+            <button id="helpBtn" class="btn btn-ghost">Compatibility Reference</button>
+            <button id="resetStageBtn" class="btn btn-ghost">Reset Build</button>
+          </div>
+          <div id="report" class="report">
+            <div class="report-title">Build Review</div>
+            <div id="reviewSummary" class="review-summary"></div>
+            <div id="reportRows"></div>
+            <div class="actions"><button id="continueBtn" class="btn btn-orange" style="display:none;">Continue to Next Build</button></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel coach-panel">
+        <div class="panel-head">A+ Compatibility Coach</div>
+        <div class="panel-body">
+          <div class="coach-list">
+            <div class="coach-rule"><b>CPU → Motherboard</b><br>Socket must match.</div>
+            <div class="coach-rule"><b>RAM → Motherboard</b><br>DDR generation and desktop DIMM form factor must match.</div>
+            <div class="coach-rule"><b>Storage → Motherboard</b><br>Check SATA vs. M.2 / NVMe support.</div>
+            <div class="coach-rule"><b>GPU → Motherboard + PSU</b><br>Check PCIe slot, power connector, and recommended wattage.</div>
+            <div class="coach-rule"><b>Cooling → CPU</b><br>Socket mounting and cooling capacity must be appropriate.</div>
+            <div class="coach-rule"><b>Customer Fit</b><br>Meeting a specification matters more than buying the most expensive part.</div>
+          </div>
+          <div class="help-note">Hints/reference do not reduce the score. Options are shuffled each time the level is reset.</div>
+        </div>
+      </aside>
+    </div>
+
+    <div id="finalCard" class="final-card">
+      <div class="eyebrow">Capstone Complete</div>
+      <h2>Workstation Builder Certified</h2>
+      <p>You progressed from a simple home PC to a graphic-design workstation and then a budget-constrained video-editing system.</p>
+      <div class="final-stats">
+        <div class="stat">3 customer builds completed</div>
+        <div class="stat" id="finalChecks"></div>
+        <div class="stat">Compatibility + customer fit + budget</div>
+      </div>
+      <p>Key A+ skills practiced: CPU socket matching, desktop RAM compatibility, M.2/NVMe storage, PCIe graphics, PSU wattage/connectors, cooling, customer-focused hardware selection, and budget tradeoffs.</p>
+      <button id="restartBtn" class="btn btn-primary">Restart Lab</button>
+    </div>
+  </div>
+
+  <div id="modalBackdrop" class="hcc-modal-backdrop" aria-hidden="true">
+    <div class="hcc-modal-box" role="dialog" aria-modal="true">
+      <div class="hcc-modal-head">
+        <div id="modalTitle" class="hcc-modal-title">Choose a Component</div>
+        <button id="closeModal" class="close-btn" aria-label="Close">×</button>
+      </div>
+      <div id="optionList" class="option-list"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const root = document.getElementById("hcc-lab");
+  const $ = (id) => root.querySelector("#"+id);
+
+  const icons = {
+    cpu:"▣", motherboard:"▤", ram:"▥", gpu:"▰", storage:"◆", psu:"▧", cooling:"✣", monitor:"▭"
+  };
+  const labels = {
+    cpu:"CPU", motherboard:"Motherboard", ram:"RAM", gpu:"Graphics", storage:"Storage",
+    psu:"Power Supply", cooling:"Cooling", monitor:"Monitor"
+  };
+
+  const stages = [
+    {
+      id:"home", level:"Level 1 — Basic", difficulty:"FOUNDATION",
+      title:"Basic Home Computer",
+      quote:"“I need a reliable computer for web browsing, email, documents, video calls, and streaming. I usually keep a bunch of browser tabs open, and I save family photos on the computer. I do not play PC games or edit videos. I have room for a normal desktop tower. I want it quiet, simple, and I do not want to spend more than $650.”",
+      budget:650,
+      requirements:[
+        "Everyday web, email, documents, video calls, and streaming",
+        "Smooth basic multitasking with several browser tabs open",
+        "Fast startup and app loading",
+        "Enough room for documents and family photos",
+        "No gaming or professional creative work",
+        "Normal desktop tower; quiet and reliable",
+        "Maximum budget: $650"
+      ],
+      categories:["cpu","motherboard","ram","gpu","storage","psu","cooling"],
+      options:{
+        cpu:[
+          {id:"h_cpu1", name:"Intel Core i3-14100", price:115, spec:"LGA1700 • 4 cores • integrated graphics • cooler capacity needed: 80 W+", socket:"LGA1700", cores:4, igpu:true, coolingW:80},
+          {id:"h_cpu2", name:"AMD Ryzen 5 7600", price:195, spec:"AM5 • 6 cores • integrated graphics • cooler capacity needed: 90 W+", socket:"AM5", cores:6, igpu:true, coolingW:90},
+          {id:"h_cpu3", name:"Intel Core i7-14700", price:335, spec:"LGA1700 • 20 cores • integrated graphics • cooler capacity needed: 180 W+", socket:"LGA1700", cores:20, igpu:true, coolingW:180}
+        ],
+        motherboard:[
+          {id:"h_mb1", name:"B760M Home Board", price:100, spec:"microATX • LGA1700 • DDR4 • 1× M.2 NVMe • PCIe x16", socket:"LGA1700", ramType:"DDR4", m2:1, sata:true, pcie16:true, form:"microATX"},
+          {id:"h_mb2", name:"B650M Creator Board", price:145, spec:"microATX • AM5 • DDR5 • 2× M.2 NVMe • PCIe x16", socket:"AM5", ramType:"DDR5", m2:2, sata:true, pcie16:true, form:"microATX"},
+          {id:"h_mb3", name:"Legacy Office Board", price:75, spec:"microATX • LGA1200 • DDR4 • SATA only • PCIe x16", socket:"LGA1200", ramType:"DDR4", m2:0, sata:true, pcie16:true, form:"microATX"}
+        ],
+        ram:[
+          {id:"h_ram1", name:"16 GB DDR4-3200", price:42, spec:"2×8 GB • desktop DIMM", type:"DDR4", form:"DIMM", gb:16},
+          {id:"h_ram2", name:"16 GB DDR5-5600", price:58, spec:"2×8 GB • desktop DIMM", type:"DDR5", form:"DIMM", gb:16},
+          {id:"h_ram3", name:"16 GB DDR4-3200 SO-DIMM", price:44, spec:"2×8 GB • laptop SO-DIMM", type:"DDR4", form:"SO-DIMM", gb:16}
+        ],
+        gpu:[
+          {id:"h_gpu1", name:"Use CPU Integrated Graphics", price:0, spec:"No add-in video card required", integratedChoice:true, dedicated:false, vram:0},
+          {id:"h_gpu2", name:"Entry Dedicated GPU", price:210, spec:"8 GB VRAM • PCIe x16 • 450 W recommended • 1×8-pin", integratedChoice:false, dedicated:true, vram:8, psuRecommended:450, connector:"8-pin"},
+          {id:"h_gpu3", name:"High-End Dedicated GPU", price:590, spec:"16 GB VRAM • PCIe x16 • 750 W recommended • 2×8-pin", integratedChoice:false, dedicated:true, vram:16, psuRecommended:750, connector:"2x8-pin"}
+        ],
+        storage:[
+          {id:"h_ssd1", name:"500 GB M.2 NVMe SSD", price:48, spec:"M.2 2280 • PCIe/NVMe", kind:"nvme", capacity:500},
+          {id:"h_ssd2", name:"2 TB 3.5-inch HDD", price:62, spec:"SATA • mechanical hard drive", kind:"sata-hdd", capacity:2000},
+          {id:"h_ssd3", name:"256 GB M.2 NVMe SSD", price:30, spec:"M.2 2280 • PCIe/NVMe", kind:"nvme", capacity:256}
+        ],
+        psu:[
+          {id:"h_psu1", name:"450 W ATX PSU", price:52, spec:"80 PLUS Bronze • 1×8-pin PCIe", watts:450, form:"ATX", connectors:["8-pin"]},
+          {id:"h_psu2", name:"300 W SFX PSU", price:58, spec:"Small-form-factor PSU • no PCIe 8-pin", watts:300, form:"SFX", connectors:[]},
+          {id:"h_psu3", name:"850 W ATX PSU", price:130, spec:"80 PLUS Gold • multiple PCIe connectors", watts:850, form:"ATX", connectors:["8-pin","2x8-pin"]}
+        ],
+        cooling:[
+          {id:"h_cool1", name:"Compact Air Cooler", price:25, spec:"LGA1700 mount • rated 95 W", supports:["LGA1700"], ratingW:95},
+          {id:"h_cool2", name:"AM5 Low-Profile Cooler", price:28, spec:"AM5 mount • rated 95 W", supports:["AM5"], ratingW:95},
+          {id:"h_cool3", name:"Tiny Passive Heatsink", price:18, spec:"LGA1700 mount • rated 35 W", supports:["LGA1700"], ratingW:35}
+        ]
+      },
+      customerChecks(sel){
+        return [
+          test(sel.cpu && sel.cpu.cores <= 6 && sel.cpu.igpu, "CPU fit for the customer", "This CPU may work, but it is more workstation-class than this basic home user needs. Choose a simpler processor that still handles everyday multitasking.", "Processor choice fits the customer's everyday workload.", "fit"),
+          test(sel.ram && sel.ram.gb >= 16 && sel.ram.gb <= 32, "Memory fit", "Choose enough desktop memory for smooth everyday multitasking without overspending on capacity this customer will not use.", "Memory choice fits the customer's multitasking needs.", "fit"),
+          test(sel.storage && sel.storage.kind==="nvme" && sel.storage.capacity >= 500, "Storage fit", sel.storage && sel.storage.kind!=="nvme" ? "The capacity may be large, but this customer asked for a computer that feels quick when starting Windows and opening apps. Reconsider the storage type." : "The fast drive is too small for the customer's documents and family photos. Choose more usable capacity.", "Storage choice fits the customer's speed and space needs.", "fit"),
+          test(sel.gpu && sel.gpu.integratedChoice===true && sel.cpu && sel.cpu.igpu===true, "Graphics fit", "A dedicated graphics card adds cost and power use without helping this customer's web, office, streaming, and video-call workload.", "Integrated graphics are an appropriate choice for this customer.", "fit"),
+          test(sel.psu && sel.psu.form==="ATX" && sel.psu.watts>=400 && sel.psu.watts<=550, "Power-supply fit", sel.psu && sel.psu.watts>550 ? "This PSU is compatible, but its capacity and price are unnecessary for this simple home build. Choose a more appropriately sized unit." : "Choose a standard-tower power supply with reasonable headroom for this system.", "PSU choice is appropriately sized for this build.", "fit"),
+          test(totalCost(sel) <= this.budget, "Budget", "The selected build is over the customer's $650 maximum.", "Build is within the customer's budget.", "budget")
+        ];
+      }
+    },
+    {
+      id:"design", level:"Level 2 — Creator", difficulty:"INTERMEDIATE",
+      title:"Graphic Designer Workstation",
+      quote:"“I am a graphic designer. I use Photoshop, Illustrator, and Lightroom every day, work with large design files, and usually keep several creative apps open at the same time. Accurate color matters because some of my work gets printed. I want the computer to feel fast for the next few years. I have room for a normal desktop tower, and I do not want the full setup to cost more than $1,400.”",
+      budget:1400,
+      requirements:[
+        "Professional graphic-design and photo-editing work",
+        "Large files and several creative apps open at once",
+        "Smooth GPU-assisted creative work",
+        "Fast project storage",
+        "Color-accurate, higher-resolution display for print-focused design",
+        "Normal desktop tower with reliable cooling and power",
+        "Maximum budget for the full setup: $1,400"
+      ],
+      categories:["cpu","motherboard","ram","gpu","storage","psu","cooling","monitor"],
+      options:{
+        cpu:[
+          {id:"d_cpu1", name:"AMD Ryzen 7 7700", price:280, spec:"AM5 • 8 cores • integrated graphics • cooler capacity needed: 110 W+", socket:"AM5", cores:8, igpu:true, coolingW:110},
+          {id:"d_cpu2", name:"Intel Core i5-14500", price:235, spec:"LGA1700 • 14 cores • integrated graphics • cooler capacity needed: 130 W+", socket:"LGA1700", cores:14, igpu:true, coolingW:130},
+          {id:"d_cpu3", name:"AMD Ryzen 5 3600", price:95, spec:"AM4 • 6 cores • no integrated graphics • cooler capacity needed: 90 W+", socket:"AM4", cores:6, igpu:false, coolingW:90}
+        ],
+        motherboard:[
+          {id:"d_mb1", name:"B650 Creator Board", price:160, spec:"ATX • AM5 • DDR5 • 2× M.2 NVMe • PCIe x16", socket:"AM5", ramType:"DDR5", m2:2, sata:true, pcie16:true, form:"ATX"},
+          {id:"d_mb2", name:"B760 Studio Board", price:155, spec:"ATX • LGA1700 • DDR5 • 2× M.2 NVMe • PCIe x16", socket:"LGA1700", ramType:"DDR5", m2:2, sata:true, pcie16:true, form:"ATX"},
+          {id:"d_mb3", name:"B550 Legacy Creator", price:120, spec:"ATX • AM4 • DDR4 • 1× M.2 NVMe • PCIe x16", socket:"AM4", ramType:"DDR4", m2:1, sata:true, pcie16:true, form:"ATX"}
+        ],
+        ram:[
+          {id:"d_ram1", name:"32 GB DDR5-6000", price:90, spec:"2×16 GB • desktop DIMM", type:"DDR5", form:"DIMM", gb:32},
+          {id:"d_ram2", name:"32 GB DDR4-3600", price:72, spec:"2×16 GB • desktop DIMM", type:"DDR4", form:"DIMM", gb:32},
+          {id:"d_ram3", name:"32 GB DDR5 SO-DIMM", price:96, spec:"2×16 GB • laptop SO-DIMM", type:"DDR5", form:"SO-DIMM", gb:32}
+        ],
+        gpu:[
+          {id:"d_gpu1", name:"Creator GPU 8 GB", price:300, spec:"Dedicated • 8 GB VRAM • PCIe x16 • 550 W PSU recommended • 1×8-pin power", integratedChoice:false, dedicated:true, vram:8, psuRecommended:550, connector:"8-pin"},
+          {id:"d_gpu2", name:"Entry Creator GPU 4 GB", price:160, spec:"Dedicated • 4 GB VRAM • PCIe x16 • 400 W PSU recommended • no auxiliary GPU power", integratedChoice:false, dedicated:true, vram:4, psuRecommended:400, connector:null},
+          {id:"d_gpu3", name:"Use Integrated Graphics", price:0, spec:"No dedicated video card", integratedChoice:true, dedicated:false, vram:0}
+        ],
+        storage:[
+          {id:"d_ssd1", name:"1 TB M.2 NVMe SSD", price:75, spec:"M.2 2280 • PCIe 4.0 NVMe", kind:"nvme", capacity:1000},
+          {id:"d_ssd2", name:"1 TB 2.5-inch SATA SSD", price:65, spec:"SATA solid-state drive", kind:"sata-ssd", capacity:1000},
+          {id:"d_ssd3", name:"500 GB M.2 NVMe SSD", price:48, spec:"M.2 2280 • PCIe/NVMe", kind:"nvme", capacity:500}
+        ],
+        psu:[
+          {id:"d_psu1", name:"650 W ATX PSU", price:80, spec:"80 PLUS Gold • 2×8-pin PCIe", watts:650, form:"ATX", connectors:["8-pin","2x8-pin"]},
+          {id:"d_psu2", name:"400 W ATX PSU", price:45, spec:"80 PLUS Bronze • no PCIe 8-pin", watts:400, form:"ATX", connectors:[]},
+          {id:"d_psu3", name:"1000 W ATX PSU", price:175, spec:"80 PLUS Gold • multiple PCIe connectors • very high capacity", watts:1000, form:"ATX", connectors:["8-pin","2x8-pin"]}
+        ],
+        cooling:[
+          {id:"d_cool1", name:"Creator Tower Air Cooler", price:45, spec:"AM5 / AM4 mount • rated 150 W", supports:["AM5","AM4"], ratingW:150},
+          {id:"d_cool2", name:"Intel Tower Air Cooler", price:44, spec:"LGA1700 mount • rated 150 W", supports:["LGA1700"], ratingW:150},
+          {id:"d_cool3", name:"Low-Profile AM5 Cooler", price:30, spec:"AM5 mount • rated 80 W", supports:["AM5"], ratingW:80}
+        ],
+        monitor:[
+          {id:"d_mon1", name:"27-inch QHD IPS Design Monitor", price:260, spec:"2560×1440 • IPS • 100% sRGB • DisplayPort", panel:"IPS", qhd:true, color:100},
+          {id:"d_mon2", name:"24-inch FHD TN Office Monitor", price:120, spec:"1920×1080 • TN • basic color coverage • HDMI", panel:"TN", qhd:false, color:72},
+          {id:"d_mon3", name:"27-inch QHD VA Monitor", price:190, spec:"2560×1440 • VA • 90% sRGB • DisplayPort", panel:"VA", qhd:true, color:90}
+        ]
+      },
+      customerChecks(sel){
+        return [
+          test(sel.cpu && sel.cpu.cores >= 8, "CPU fit for creative work", "This processor is compatible with a matching board, but it is a weaker fit for large design files and several creative apps running together.", "CPU choice fits the customer's professional creative workload.", "fit"),
+          test(sel.ram && sel.ram.gb >= 32, "Memory fit", "The selected memory capacity is too limited for the customer's large files and multiple creative applications.", "Memory capacity fits the customer's multitasking workload.", "fit"),
+          test(sel.gpu && sel.gpu.dedicated && sel.gpu.vram >= 8, "Graphics fit", sel.gpu && sel.gpu.dedicated ? "This dedicated GPU is compatible, but its VRAM is a weaker fit for the customer's professional creative workload. Choose the stronger creator option." : "Integrated graphics are not the best fit for this customer's professional creative workload. Choose an appropriate dedicated GPU.", "Dedicated graphics choice fits the customer's workload.", "fit"),
+          test(sel.storage && sel.storage.kind==="nvme" && sel.storage.capacity >= 1000, "Storage fit", sel.storage && sel.storage.kind!=="nvme" ? "The drive has usable capacity, but the customer works with large project files and wants the system to feel fast. Choose the faster working-storage option." : "The fast drive does not provide enough working space for this customer's large project files.", "Storage choice fits the customer's project workflow.", "fit"),
+          test(sel.monitor && sel.monitor.panel==="IPS" && sel.monitor.qhd && sel.monitor.color>=99, "Display fit", "This monitor can display an image, but it is not the best match for print-focused design where resolution and color accuracy matter.", "Display choice fits the customer's color-sensitive design work.", "fit"),
+          test(sel.psu && sel.psu.watts <= 750, "Power-supply value", "This PSU has far more capacity and cost than this workstation needs. Choose a unit that meets the GPU requirements without unnecessary overspending.", "PSU capacity is appropriate for this system.", "fit"),
+          test(totalCost(sel) <= this.budget, "Budget", "The full setup is over the customer's $1,400 maximum.", "Build is within the customer's budget.", "budget")
+        ];
+      }
+    },
+    {
+      id:"video", level:"Level 3 — Workstation", difficulty:"ADVANCED",
+      title:"4K Video Editing Workstation",
+      quote:"“I edit 4K video and work with large project files. Exports are slow on my current computer, and I use GPU-accelerated effects. I usually have my editor, audio tools, browser, and other apps open at the same time. I need plenty of fast space for active projects. I have room for a normal desktop tower, and I cannot spend more than $1,500.”",
+      budget:1500,
+      requirements:[
+        "4K video editing and faster exports",
+        "Heavy multitasking while editing",
+        "GPU-accelerated effects and heavier visual projects",
+        "Plenty of fast working storage for large media files",
+        "Reliable power and cooling during long editing/export sessions",
+        "Normal desktop tower",
+        "Maximum budget: $1,500"
+      ],
+      categories:["cpu","motherboard","ram","gpu","storage","psu","cooling"],
+      options:{
+        cpu:[
+          {id:"v_cpu1", name:"Intel Core i7-14700", price:350, spec:"LGA1700 • 20 cores • high workstation performance • cooler capacity needed: 200 W+", socket:"LGA1700", cores:20, igpu:true, coolingW:200},
+          {id:"v_cpu2", name:"AMD Ryzen 9 7900", price:360, spec:"AM5 • 12 cores • high workstation performance • cooler capacity needed: 170 W+", socket:"AM5", cores:12, igpu:true, coolingW:170},
+          {id:"v_cpu3", name:"Intel Core i3-14100", price:115, spec:"LGA1700 • 4 cores • entry-level CPU • cooler capacity needed: 80 W+", socket:"LGA1700", cores:4, igpu:true, coolingW:80}
+        ],
+        motherboard:[
+          {id:"v_mb1", name:"B760 Pro Workstation Board", price:170, spec:"ATX • LGA1700 • DDR5 • 3× M.2 NVMe • PCIe x16", socket:"LGA1700", ramType:"DDR5", m2:3, sata:true, pcie16:true, form:"ATX"},
+          {id:"v_mb2", name:"B650 Pro Workstation Board", price:175, spec:"ATX • AM5 • DDR5 • 3× M.2 NVMe • PCIe x16", socket:"AM5", ramType:"DDR5", m2:3, sata:true, pcie16:true, form:"ATX"},
+          {id:"v_mb3", name:"B760 Legacy-Memory Board", price:135, spec:"ATX • LGA1700 • DDR4 • 1× M.2 NVMe • PCIe x16", socket:"LGA1700", ramType:"DDR4", m2:1, sata:true, pcie16:true, form:"ATX"}
+        ],
+        ram:[
+          {id:"v_ram1", name:"32 GB DDR5-5600", price:95, spec:"2×16 GB • desktop DIMM", type:"DDR5", form:"DIMM", gb:32},
+          {id:"v_ram2", name:"64 GB DDR4-3600", price:120, spec:"2×32 GB • desktop DIMM", type:"DDR4", form:"DIMM", gb:64},
+          {id:"v_ram3", name:"32 GB DDR5-5600 SO-DIMM", price:100, spec:"2×16 GB • laptop memory", type:"DDR5", form:"SO-DIMM", gb:32}
+        ],
+        gpu:[
+          {id:"v_gpu1", name:"Studio GPU 16 GB", price:450, spec:"16 GB VRAM • PCIe x16 • 650 W recommended • 1×8-pin", integratedChoice:false, dedicated:true, vram:16, psuRecommended:650, connector:"8-pin"},
+          {id:"v_gpu2", name:"Performance GPU 8 GB", price:340, spec:"8 GB VRAM • PCIe x16 • 550 W recommended • 1×8-pin", integratedChoice:false, dedicated:true, vram:8, psuRecommended:550, connector:"8-pin"},
+          {id:"v_gpu3", name:"Enthusiast GPU 20 GB", price:780, spec:"20 GB VRAM • PCIe x16 • 850 W recommended • 2×8-pin", integratedChoice:false, dedicated:true, vram:20, psuRecommended:850, connector:"2x8-pin"}
+        ],
+        storage:[
+          {id:"v_ssd1", name:"2 TB M.2 NVMe SSD", price:140, spec:"M.2 2280 • PCIe 4.0 NVMe", kind:"nvme", capacity:2000},
+          {id:"v_ssd2", name:"2 TB 3.5-inch HDD", price:65, spec:"SATA • mechanical storage", kind:"sata-hdd", capacity:2000},
+          {id:"v_ssd3", name:"1 TB M.2 NVMe SSD", price:75, spec:"M.2 2280 • PCIe 4.0 NVMe", kind:"nvme", capacity:1000}
+        ],
+        psu:[
+          {id:"v_psu1", name:"750 W ATX Gold PSU", price:110, spec:"ATX • 80 PLUS Gold • 2×8-pin PCIe", watts:750, form:"ATX", connectors:["8-pin","2x8-pin"]},
+          {id:"v_psu2", name:"600 W ATX Bronze PSU", price:70, spec:"ATX • 1×8-pin PCIe", watts:600, form:"ATX", connectors:["8-pin"]},
+          {id:"v_psu3", name:"850 W ATX Gold PSU", price:150, spec:"ATX • 80 PLUS Gold • 2×8-pin PCIe", watts:850, form:"ATX", connectors:["8-pin","2x8-pin"]}
+        ],
+        cooling:[
+          {id:"v_cool1", name:"Dual-Tower Workstation Air Cooler", price:65, spec:"LGA1700 mount • rated 220 W", supports:["LGA1700"], ratingW:220},
+          {id:"v_cool2", name:"AM5 Dual-Tower Air Cooler", price:65, spec:"AM5 mount • rated 220 W", supports:["AM5"], ratingW:220},
+          {id:"v_cool3", name:"Compact LGA1700 Cooler", price:35, spec:"LGA1700 mount • rated 120 W", supports:["LGA1700"], ratingW:120}
+        ]
+      },
+      customerChecks(sel){
+        return [
+          test(sel.cpu && sel.cpu.cores >= 12, "CPU fit for 4K editing", "This processor may be compatible, but it is not a strong fit for the customer's 4K editing, heavy multitasking, and export workload.", "CPU choice fits the heavier editing workload.", "fit"),
+          test(sel.ram && sel.ram.gb >= 32, "Memory fit", "Choose enough desktop memory for 4K editing and several applications running together.", "Memory choice fits the editing workload.", "fit"),
+          test(sel.gpu && sel.gpu.dedicated && sel.gpu.vram >= 12, "Graphics fit", "This GPU may work for lighter tasks, but it is a weaker fit for the customer's heavier GPU-accelerated 4K projects.", "GPU choice fits the customer's accelerated editing workload.", "fit"),
+          test(sel.storage && sel.storage.kind==="nvme" && sel.storage.capacity >= 2000, "Storage fit", sel.storage && sel.storage.kind!=="nvme" ? "The capacity is large, but this mechanical drive is a poor working drive for large active video projects. Choose fast solid-state project storage." : "The selected fast drive does not provide enough working space for this customer's large media projects.", "Storage choice fits the customer's large active projects.", "fit"),
+          test(sel.psu && sel.psu.watts >= 750, "Power-supply fit", "For long editing/export workloads and the selected workstation graphics options, choose the higher-capacity PSU option with appropriate headroom.", "PSU choice fits the workstation workload.", "fit"),
+          test(totalCost(sel) <= this.budget, "Budget", "The selected build is over the customer's $1,500 maximum.", "Build is within the customer's budget.", "budget")
+        ];
+      }
+    }
+  ];
+
+  function test(ok, name, failMsg, passMsg, kind){
+    return {
+      ok:!!ok,
+      name,
+      kind:kind || "compatibility",
+      msg: ok ? (passMsg || "Requirement satisfied.") : failMsg
+    };
+  }
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+  }
+  function money(v){ return "$"+Number(v||0).toLocaleString(); }
+  function totalCost(sel){
+    return Object.values(sel||{}).reduce((sum,p)=>sum+(p && p.price ? p.price : 0),0);
+  }
+  function connectorOkay(psu, gpu){
+    if(!gpu || !gpu.dedicated || !gpu.connector) return true;
+    return !!(psu && psu.connectors && psu.connectors.includes(gpu.connector));
+  }
+
+  let state = {
+    stageIndex:0,
+    unlocked:1,
+    selections:{},
+    checks:0,
+    completedStages:new Set(),
+    compatibilityPassed:false,
+    stagePassed:false
+  };
+
+  function currentStage(){ return stages[state.stageIndex]; }
+
+  function genericChecks(stage, sel){
+    const out=[];
+    const cpu=sel.cpu, mb=sel.motherboard, ram=sel.ram, gpu=sel.gpu, storage=sel.storage, psu=sel.psu, cooling=sel.cooling;
+
+    out.push(test(cpu && mb && cpu.socket===mb.socket,
+      "CPU → Motherboard",
+      cpu && mb ? `Socket mismatch: CPU uses ${cpu.socket}, motherboard uses ${mb.socket}.` : "Select both the CPU and motherboard."
+    ));
+    out.push(test(ram && mb && ram.type===mb.ramType && ram.form==="DIMM",
+      "RAM → Motherboard",
+      ram && mb ? `Memory mismatch: board expects ${mb.ramType} desktop DIMMs; selected memory is ${ram.type} ${ram.form}.` : "Select both RAM and motherboard."
+    ));
+
+    let storageOK=false, storageFail="Select storage and a motherboard.";
+    if(storage && mb){
+      if(storage.kind==="nvme"){ storageOK=mb.m2>0; storageFail="The selected M.2/NVMe drive requires a motherboard with an M.2 slot."; }
+      else { storageOK=!!mb.sata; storageFail="The selected SATA drive requires SATA support."; }
+    }
+    out.push(test(storageOK,"Storage → Motherboard",storageFail));
+
+    let graphicsOK=false, graphicsFail="Select graphics, CPU, motherboard, and PSU.";
+    if(gpu && cpu && mb && psu){
+      if(gpu.integratedChoice){
+        graphicsOK=!!cpu.igpu;
+        graphicsFail="Integrated graphics were selected, but the chosen CPU does not provide integrated graphics.";
+      } else {
+        graphicsOK=!!mb.pcie16 && psu.watts>=gpu.psuRecommended && connectorOkay(psu,gpu);
+        if(!mb.pcie16) graphicsFail="Dedicated graphics require a compatible PCIe x16 expansion slot.";
+        else if(psu.watts<gpu.psuRecommended) graphicsFail=`GPU recommends at least ${gpu.psuRecommended} W; selected PSU is ${psu.watts} W.`;
+        else if(!connectorOkay(psu,gpu)) graphicsFail=`GPU requires ${gpu.connector} PCIe power; selected PSU does not provide it.`;
+      }
+    }
+    out.push(test(graphicsOK,"GPU / Graphics → Motherboard + PSU",graphicsFail));
+
+    out.push(test(psu && psu.form==="ATX","PSU form factor","The customer has room for a normal desktop tower; for this lab, choose the standard ATX power-supply option rather than a small-form-factor unit."));
+
+    out.push(test(cooling && cpu && cooling.supports.includes(cpu.socket) && cooling.ratingW>=cpu.coolingW,
+      "Cooling → CPU",
+      cooling && cpu
+        ? (!cooling.supports.includes(cpu.socket) ? `Cooler mounting does not support ${cpu.socket}.` : `Cooler is rated ${cooling.ratingW} W; this CPU build needs a stronger thermal solution.`)
+        : "Select both CPU and cooling."
+    ));
+
+    return out.concat(stage.customerChecks(sel));
+  }
+
+  function renderLevels(){
+    const box=$("levelPills"); box.innerHTML="";
+    stages.forEach((s,i)=>{
+      const b=document.createElement("button");
+      b.className="level-pill "+(i===state.stageIndex?"active ":"")+(state.completedStages.has(i)?"done ":"")+(i>=state.unlocked?"locked ":"");
+      b.textContent=(state.completedStages.has(i)?"✓ ":"") + s.level;
+      b.disabled=i>=state.unlocked;
+      b.addEventListener("click",()=>{ if(i<state.unlocked) loadStage(i); });
+      box.appendChild(b);
+    });
+  }
+
+  function renderStage(){
+    const s=currentStage();
+    $("difficultyBadge").textContent=s.difficulty;
+    $("customerTitle").textContent=s.title;
+    $("customerQuote").textContent=s.quote;
+    $("requirements").innerHTML=s.requirements.map(r=>`<li>${r}</li>`).join("");
+    $("budgetLimit").textContent=money(s.budget);
+    $("componentGrid").innerHTML="";
+    s.categories.forEach(cat=>{
+      const p=state.selections[cat];
+      const card=document.createElement("div");
+      card.className="component-slot"+(p?" selected":"");
+      card.innerHTML=`
+        <div class="slot-top">
+          <div>
+            <div class="slot-label">${labels[cat]}</div>
+          </div>
+          <div class="slot-icon">${icons[cat]||"•"}</div>
+        </div>
+        <div>
+          <div class="selected-name">${p?p.name:"Not selected"}</div>
+          <div class="selected-spec">${p?p.spec:"Review the available specs."}</div>
+        </div>
+        <button class="choose-btn" data-cat="${cat}">${p?"Change":"Choose"} ${labels[cat]}</button>
+      `;
+      $("componentGrid").appendChild(card);
+    });
+    root.querySelectorAll(".choose-btn").forEach(btn=>btn.addEventListener("click",()=>openChooser(btn.dataset.cat)));
+    $("report").classList.remove("show");
+    $("reportRows").innerHTML="";
+    $("reviewSummary").className="review-summary";
+    $("reviewSummary").textContent="";
+    $("continueBtn").style.display="none";
+    $("finalCard").classList.remove("show");
+    updateSummary();
+    renderLevels();
+  }
+
+  function openChooser(cat){
+    const s=currentStage();
+    $("modalTitle").textContent=`Choose ${labels[cat]}`;
+    const list=$("optionList"); list.innerHTML="";
+    const options=shuffle(s.options[cat]);
+    options.forEach(opt=>{
+      const card=document.createElement("div");
+      card.className="option-card"+(state.selections[cat] && state.selections[cat].id===opt.id?" current":"");
+      card.innerHTML=`
+        <div>
+          <div class="option-name">${opt.name}</div>
+          <div class="option-specs">${opt.spec}</div>
+          <button class="option-select">Select this part</button>
+        </div>
+        <div class="option-price">${money(opt.price)}</div>
+      `;
+      card.querySelector(".option-select").addEventListener("click",()=>{
+        state.selections[cat]=opt;
+        state.compatibilityPassed=false;
+        closeModal();
+        renderStage();
+      });
+      list.appendChild(card);
+    });
+    $("modalBackdrop").classList.add("show");
+    $("modalBackdrop").setAttribute("aria-hidden","false");
+  }
+
+  function closeModal(){
+    $("modalBackdrop").classList.remove("show");
+    $("modalBackdrop").setAttribute("aria-hidden","true");
+  }
+
+  function updateSummary(){
+    const s=currentStage();
+    const count=s.categories.filter(c=>!!state.selections[c]).length;
+    $("selectedCount").textContent=`${count} / ${s.categories.length} selected`;
+    $("selectedTotal").textContent=money(totalCost(state.selections));
+    const pct=Math.min(100,(totalCost(state.selections)/s.budget)*100);
+    $("budgetFill").style.width=pct+"%";
+    $("budgetFill").classList.toggle("over", totalCost(state.selections)>s.budget);
+    $("checkCount").textContent=state.checks;
+
+    const completed=state.completedStages.size + (state.stagePassed && !state.completedStages.has(state.stageIndex) ? 1 : 0);
+    const progress=Math.round((completed/stages.length)*100);
+    $("progressText").textContent=Math.min(100,progress)+"%";
+  }
+
+  function checkBuild(){
+    const s=currentStage();
+    const missing=s.categories.filter(c=>!state.selections[c]);
+    state.checks++;
+    $("checkCount").textContent=state.checks;
+
+    if(missing.length){
+      showToast("Select every required component before reviewing the build.");
+      return;
+    }
+
+    const checks=genericChecks(s,state.selections);
+    const compatFails=checks.filter(c=>!c.ok && c.kind==="compatibility");
+    const fitFails=checks.filter(c=>!c.ok && c.kind==="fit");
+    const budgetFail=checks.find(c=>!c.ok && c.kind==="budget");
+    const all=checks.every(c=>c.ok);
+
+    $("reportRows").innerHTML="";
+    checks.forEach(c=>{
+      const row=document.createElement("div");
+      const rowType=c.ok ? "pass" : (c.kind==="fit" ? "warn" : "fail");
+      const icon=c.ok ? "✓" : (c.kind==="fit" ? "⚠" : "!");
+      row.className="check-row "+rowType;
+      row.innerHTML=`<div class="check-icon">${icon}</div><div><b>${c.name}</b><br>${c.msg}</div>`;
+      $("reportRows").appendChild(row);
+    });
+
+    const summary=$("reviewSummary");
+    summary.className="review-summary show";
+
+    if(all){
+      state.compatibilityPassed=true;
+      state.stagePassed=true;
+      summary.classList.add("pass");
+      summary.textContent="✓ Build approved — the parts are compatible, the choices fit the customer, and the total is within budget.";
+      $("continueBtn").style.display="inline-block";
+      $("continueBtn").textContent=state.stageIndex===stages.length-1 ? "Finish Lab" : "Continue to Next Build";
+      showToast("Build approved. You can continue.");
+    } else if(compatFails.length===0 && fitFails.length===0 && budgetFail){
+      state.compatibilityPassed=true;
+      state.stagePassed=false;
+      const over=totalCost(state.selections)-s.budget;
+      summary.classList.add("warn");
+      summary.textContent=`✓ Your component choices are compatible and appropriate, but the build is ${money(over)} over budget. Edit the build to ${money(s.budget)} or less before continuing.`;
+      $("continueBtn").style.display="none";
+      showToast(`Correct build, but ${money(over)} over budget. Revise the price.`);
+    } else if(compatFails.length===0){
+      state.compatibilityPassed=true;
+      state.stagePassed=false;
+      summary.classList.add("warn");
+      summary.textContent=budgetFail
+        ? "The parts are compatible, but the build still needs revision for customer fit and budget. Review the yellow items and the budget."
+        : "The parts are compatible, but one or more choices are a poor fit for this customer. Review the yellow Customer Fit items.";
+      $("continueBtn").style.display="none";
+      showToast("Compatible, but revise the customer-fit choices.");
+    } else {
+      state.compatibilityPassed=false;
+      state.stagePassed=false;
+      summary.classList.add("fail");
+      summary.textContent="This build has one or more hardware compatibility problems. Fix the red items first, then review customer fit and budget.";
+      $("continueBtn").style.display="none";
+      showToast("Compatibility issues found. Review the red items.");
+    }
+
+    $("report").classList.add("show");
+    updateSummary();
+  }
+
+  function nextLevel(){
+    if(!state.stagePassed) return;
+
+    const i=state.stageIndex;
+    state.completedStages.add(i);
+    state.unlocked=Math.max(state.unlocked,Math.min(stages.length,i+2));
+    renderLevels();
+
+    if(i===stages.length-1){
+      showFinal();
+    } else {
+      loadStage(i+1);
+      root.querySelector(".lab-shell").scrollTop=0;
+    }
+  }
+
+  function showFinal(){
+    $("mainGrid").style.display="none";
+    $("finalChecks").textContent=`${state.checks} compatibility check${state.checks===1?"":"s"}`;
+    $("finalCard").classList.add("show");
+    $("progressText").textContent="100%";
+  }
+
+  function loadStage(i){
+    state.stageIndex=i;
+    state.selections={};
+    state.compatibilityPassed=false;
+    state.stagePassed=false;
+    $("mainGrid").style.display="grid";
+    renderStage();
+  }
+
+  function resetStage(){
+    state.selections={};
+    state.compatibilityPassed=false;
+    state.stagePassed=false;
+    renderStage();
+    showToast("Level reset. Component options will be shuffled when opened.");
+  }
+
+  function restart(){
+    state={stageIndex:0,unlocked:1,selections:{},checks:0,completedStages:new Set(),compatibilityPassed:false,stagePassed:false};
+    $("mainGrid").style.display="grid";
+    $("finalCard").classList.remove("show");
+    renderStage();
+  }
+
+  function showReference(){
+    $("modalTitle").textContent="Compatibility Reference — no answers";
+    $("optionList").innerHTML=`
+      <div class="option-card"><div><div class="option-name">CPU socket</div><div class="option-specs">The CPU socket type must match the motherboard socket. Example concepts include Intel LGA sockets and AMD AM-series sockets. For this lab, assume BIOS/firmware support is current when the listed socket matches.</div></div></div>
+      <div class="option-card"><div><div class="option-name">RAM</div><div class="option-specs">DDR4 and DDR5 are different generations and are not interchangeable. Desktop systems use DIMMs; laptops commonly use SO-DIMMs.</div></div></div>
+      <div class="option-card"><div><div class="option-name">Storage</div><div class="option-specs">A SATA drive needs SATA connectivity. An M.2 NVMe SSD needs an appropriate M.2 slot that supports PCIe/NVMe.</div></div></div>
+      <div class="option-card"><div><div class="option-name">GPU and PSU</div><div class="option-specs">A dedicated GPU typically uses a PCIe x16 slot. Also verify the PSU wattage and required auxiliary PCIe power connector.</div></div></div>
+      <div class="option-card"><div><div class="option-name">Cooling</div><div class="option-specs">The cooler must physically support the CPU socket and meet or exceed the cooler-capacity requirement shown in the CPU specifications.</div></div></div>
+      <div class="option-card"><div><div class="option-name">Customer requirements</div><div class="option-specs">A compatible system can still be a poor recommendation. Translate the customer’s everyday language into sensible performance, storage, graphics, display, power, and budget decisions.</div></div></div>
+    `;
+    $("modalBackdrop").classList.add("show");
+    $("modalBackdrop").setAttribute("aria-hidden","false");
+  }
+
+  function showToast(msg){
+    const t=$("toast"); t.textContent=msg; t.classList.add("show");
+    clearTimeout(showToast.timer);
+    showToast.timer=setTimeout(()=>t.classList.remove("show"),2600);
+  }
+
+  $("checkBuildBtn").addEventListener("click",checkBuild);
+  $("helpBtn").addEventListener("click",showReference);
+  $("resetStageBtn").addEventListener("click",resetStage);
+  $("continueBtn").addEventListener("click",nextLevel);
+  $("restartBtn").addEventListener("click",restart);
+  $("closeModal").addEventListener("click",closeModal);
+  $("modalBackdrop").addEventListener("click",(e)=>{ if(e.target===$("modalBackdrop")) closeModal(); });
+  document.addEventListener("keydown",(e)=>{ if(e.key==="Escape") closeModal(); });
+
+  renderStage();
+})();
+</script>
+</body>
+</html>
